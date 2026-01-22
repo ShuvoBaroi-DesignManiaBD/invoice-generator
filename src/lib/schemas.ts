@@ -2,8 +2,14 @@ import { z } from "zod"
 
 export const invoiceSchema = z.object({
   invoiceNumber: z.string().min(1, "Invoice number is required"),
-  date: z.date(),
-  dueDate: z.date(),
+  date: z.coerce.date({
+    required_error: "Invoice date is required",
+    invalid_type_error: "Invalid date format",
+  }),
+  dueDate: z.coerce.date({
+    required_error: "Due date is required",
+    invalid_type_error: "Invalid date format",
+  }),
   
   // Sender Details
   fromName: z.string().min(1, "Company name is required"),
@@ -34,3 +40,22 @@ export const invoiceSchema = z.object({
 })
 
 export type InvoiceFormValues = z.infer<typeof invoiceSchema>
+
+export const companyDetailsSchema = z.object({
+  companyName: z.string().min(1, "Company name is required"),
+  companyEmail: z.string().email().optional().or(z.literal('')),
+  companyAddress: z.string().optional(),
+  companyPhone: z.string().optional(),
+  companyVat: z.string().optional(),
+  companyRegNumber: z.string().optional(),
+})
+
+export type CompanyDetailsValues = z.infer<typeof companyDetailsSchema>
+
+export const accountSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  password: z.string().min(6, "Password must be at least 6 characters").optional().or(z.literal('')),
+})
+
+export type AccountValues = z.infer<typeof accountSchema>
+

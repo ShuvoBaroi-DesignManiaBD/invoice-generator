@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { Header } from "@/components/layout/header";
+import { createClient } from "@/utils/supabase/server";
+import { ThemeSync } from "@/components/theme-sync";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,11 +22,14 @@ export const metadata: Metadata = {
   description: "Modern professional invoice generator",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -35,7 +41,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <ThemeSync themePreference={data.user?.user_metadata?.theme_preference} />
+          <Header user={data.user} />
+            <main className="min-h-screen">
+              {children}
+            </main>
           <Toaster />
         </ThemeProvider>
       </body>

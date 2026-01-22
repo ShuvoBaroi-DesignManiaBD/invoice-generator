@@ -42,6 +42,34 @@ export function InvoiceForm({
   const [isClient, setIsClient] = useState(false);
   const supabase = createClient();
 
+  const DEFAULT_VALUES: InvoiceFormValues = {
+    invoiceNumber: "INV-" + Math.floor(Math.random() * 10000),
+    date: new Date(),
+    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    items: [{ description: "Service", quantity: 1, price: 100 }],
+    currency: "USD",
+    taxRate: 0,
+    discount: 0,
+    status: "draft",
+    fromName: "",
+    fromEmail: "",
+    fromAddress: "",
+    fromPhone: "",
+    fromVat: "",
+    fromRegNumber: "",
+    toName: "",
+    toEmail: "",
+    toAddress: "",
+    toPhone: "",
+    toVat: "",
+    toRegNumber: "",
+  };
+
+  const form = useForm<InvoiceFormValues>({
+    resolver: zodResolver(invoiceSchema) as any,
+    defaultValues: defaultValues || DEFAULT_VALUES,
+  });
+
   useEffect(() => {
     setIsClient(true);
     const pendingInvoice = localStorage.getItem("pendingInvoice");
@@ -51,7 +79,17 @@ export function InvoiceForm({
         // Convert date strings back to Date objects
         if (parsed.date) parsed.date = new Date(parsed.date);
         if (parsed.dueDate) parsed.dueDate = new Date(parsed.dueDate);
-        form.reset(parsed);
+        
+        // Merge with defaults to ensure missing fields (like dates) are populated
+        const mergedValues = {
+          ...DEFAULT_VALUES,
+          ...parsed,
+          // Ensure dates are valid if the merge overwrote them with strings/undefined despite the check above
+          date: parsed.date ? new Date(parsed.date) : DEFAULT_VALUES.date,
+          dueDate: parsed.dueDate ? new Date(parsed.dueDate) : DEFAULT_VALUES.dueDate,
+        };
+        
+        form.reset(mergedValues);
         // Optional: clear it once restored, or keep it until saved
         // localStorage.removeItem("pendingInvoice")
         toast.info("Restored unsaved invoice draft");
@@ -60,32 +98,6 @@ export function InvoiceForm({
       }
     }
   }, []);
-
-  const form = useForm<InvoiceFormValues>({
-    resolver: zodResolver(invoiceSchema) as any,
-    defaultValues: defaultValues || {
-      invoiceNumber: "INV-" + Math.floor(Math.random() * 10000),
-      date: new Date(),
-      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      items: [{ description: "Service", quantity: 1, price: 100 }],
-      currency: "USD",
-      taxRate: 0,
-      discount: 0,
-      status: "draft",
-      fromName: "",
-      fromEmail: "",
-      fromAddress: "",
-      fromPhone: "",
-      fromVat: "",
-      fromRegNumber: "",
-      toName: "",
-      toEmail: "",
-      toAddress: "",
-      toPhone: "",
-      toVat: "",
-      toRegNumber: "",
-    },
-  });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -132,7 +144,7 @@ export function InvoiceForm({
         className="flex flex-col h-full gap-6 max-h-[90vh]"
       >
         <div className="flex justify-between items-center shrink-0">
-          <h2 className="text-2xl font-bold tracking-tight">New Invoice</h2>
+          <h2 className="text-3xl font-bold tracking-tight">New Invoice</h2>
           <div className="flex gap-2">
             {isClient && (
               <PDFDownloadLink
@@ -151,7 +163,7 @@ export function InvoiceForm({
           </div>
         </div>
 
-        <div className="flex flex-col xl:flex-row gap-4 items-start flex-1 overflow-hidden min-h-0">
+        <div className="flex flex-col xl:flex-row gap-8 items-start flex-1 overflow-hidden min-h-0">
           <div className="flex-1 w-full space-y-6 overflow-y-auto max-h-[85vh] overflow-x-hidden pr-2 custom-scrollbar">
             <Card>
               <CardHeader>

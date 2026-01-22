@@ -2,12 +2,23 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { LayoutDashboard, FileText, Settings, Menu, X } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { LayoutDashboard, FileText, Settings, Menu, X, LogOut, User as UserIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/ui/theme-toggle"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { createClient } from "@/utils/supabase/client"
+import type { User } from "@supabase/supabase-js"
 
 /**
  * Navigation routes configuration
@@ -37,7 +48,7 @@ const routes = [
  * Header component providing application navigation and theme switching.
  * Includes a responsive mobile menu and a desktop navigation bar.
  */
-export function Header() {
+export function Header({ user }: { user: User | null }) {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = React.useState(false)
 
@@ -46,25 +57,33 @@ export function Header() {
     setIsOpen(false)
   }, [pathname])
 
+  const router = useRouter()
+  
+  const handleSignOut = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.refresh()
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center px-4">
-        {/* Mobile Menu Trigger */}
-        <div className="mr-4 md:hidden">
-            <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setIsOpen(!isOpen)}
-                aria-label={isOpen ? "Close menu" : "Open menu"}
-                aria-expanded={isOpen}
-            >
-                {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
-        </div>
+      <div className="container mx-auto flex h-16 items-center justify-between">
+        <div className="flex items-center">
+          {/* Mobile Menu Trigger */}
+          <div className="mr-4 md:hidden">
+              <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setIsOpen(!isOpen)}
+                  aria-label={isOpen ? "Close menu" : "Open menu"}
+                  aria-expanded={isOpen}
+              >
+                  {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+          </div>
 
-        {/* Desktop Logo */}
-        <div className="mr-4 hidden md:flex">
-          <Link href="/dashboard" className="mr-6 flex items-center space-x-2">
+          {/* Logo */}
+          <Link href="/dashboard" className="flex items-center space-x-2">
             <div className="h-6 w-6 bg-primary rounded flex items-center justify-center text-primary-foreground text-xs font-bold">
                 IG
             </div>
@@ -72,8 +91,11 @@ export function Header() {
               Invoice Generator
             </span>
           </Link>
-          {/* Desktop Nav */}
-          <nav className="flex items-center space-x-6 text-sm font-medium">
+        </div>
+
+        {/* Desktop Nav and Actions (Right Side) */}
+        <div className="flex items-center gap-6">
+          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
             {routes.map((route) => (
               <Link
                 key={route.href}
@@ -87,25 +109,55 @@ export function Header() {
               </Link>
             ))}
           </nav>
-        </div>
-
-        {/* Mobile Logo (Center or Left if desired, but sticking to simple left align next to hamburger) */}
-        <div className="flex md:hidden flex-1">
-             <Link href="/dashboard" className="flex items-center space-x-2">
-                <div className="h-6 w-6 bg-primary rounded flex items-center justify-center text-primary-foreground text-xs font-bold">
-                    IG
-                </div>
-                <span className="font-bold">
-                    Invoice Generator
-                </span>
-            </Link>
-        </div>
-
-        {/* Right Side */}
-        <div className="flex items-center justify-end space-x-4">
-          <nav className="flex items-center space-x-2">
+          
+          <div className="flex items-center space-x-2">
              <ModeToggle />
-          </nav>
+             {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user.user_metadata?.avatar_url || ""} alt={user.email || ""} />
+                        <AvatarFallback className="bg-primary text-primary-foreground font-bold">
+                          {user.email?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{user.user_metadata?.full_name || "User"}</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {user.email}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                        <Link href="/settings" className="cursor-pointer">
+                            <UserIcon className="mr-2 h-4 w-4" />
+                            <span>Settings</span>
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+             ) : (
+                 <div className="flex items-center gap-2">
+                    <Button variant="ghost" asChild size="sm">
+                        <Link href="/login">Log in</Link>
+                    </Button>
+                     <Button asChild size="sm">
+                        <Link href="/signup">Sign up</Link>
+                    </Button>
+                 </div>
+             )}
+          </div>
         </div>
       </div>
 

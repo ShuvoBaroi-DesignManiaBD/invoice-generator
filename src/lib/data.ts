@@ -9,10 +9,15 @@ export type Invoice = {
   status: 'paid' | 'pending' | 'overdue' | 'draft'
   currency: string
   items?: any[]
+  invoiceNumber?: string
+  data?: any
 }
 
 export async function getInvoices(): Promise<Invoice[]> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return []
   
   // Check if configured
   if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('your-supabase-url')) {
@@ -23,18 +28,28 @@ export async function getInvoices(): Promise<Invoice[]> {
       ]
   }
 
-  const { data, error } = await supabase.from('invoices').select('*').order('created_at', { ascending: false })
+  const { data, error } = await supabase
+      .from('invoices')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
   
   if (error) {
       console.error('Error fetching invoices:', error)
       return []
   }
 
-  return data as Invoice[] || []
+  return data.map((invoice: any) => ({
+      ...invoice,
+      invoiceNumber: invoice.data?.invoiceNumber || invoice.id, // Use saved invoice number or fallback to ID
+  })) as Invoice[]
 }
 
 export async function getInvoice(id: string): Promise<InvoiceFormValues | null> {
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return null
 
     if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('your-supabase-url')) {
         return {
@@ -53,10 +68,26 @@ export async function getInvoice(id: string): Promise<InvoiceFormValues | null> 
         } as InvoiceFormValues
     }
 
-    const { data, error } = await supabase.from('invoices').select('*').eq('id', id).single()
+    const { data, error } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .single()
     if (error) return null
     
-    // Simplistic mapping
+    // If we have saved data in the JSONB column, use it
+    if (data.data) {
+        return {
+            ...data.data,
+            // Ensure essential fields are not overwritten if somehow missing in data but present in columns
+            // though createInvoice saves everything to data.
+            date: new Date(data.data.date), // Rehydrate dates
+            dueDate: new Date(data.data.dueDate),
+        } as InvoiceFormValues
+    }
+
+    // Simplistic mapping for legacy records without JSONB data
     return {
         invoiceNumber: data.id, // using ID as number for now
         date: new Date(data.created_at),

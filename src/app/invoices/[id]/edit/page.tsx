@@ -11,7 +11,7 @@ export default async function EditInvoicePage({ params }: { params: Promise<{ id
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="mx-auto py-6">
       <InvoiceForm defaultValues={invoice} />
     </div>
   )

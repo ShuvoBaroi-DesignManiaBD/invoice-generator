@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -19,7 +19,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, Trash2, Plus, Download } from "lucide-react";
+import {
+  CalendarIcon,
+  Trash2,
+  Plus,
+  Download,
+  CheckCircle2,
+} from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { invoiceSchema, InvoiceFormValues } from "@/lib/schemas";
@@ -32,6 +38,15 @@ import { InvoicePreview } from "./invoice-preview";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getClients } from "@/app/clients/actions";
+import { getUserMetadata } from "@/app/settings/actions";
 
 export function InvoiceForm({
   defaultValues,
@@ -40,7 +55,30 @@ export function InvoiceForm({
 }) {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
+  const [clients, setClients] = useState<any[]>([]);
   const supabase = createClient();
+
+  useEffect(() => {
+    async function loadData() {
+      // Load Clients
+      const clientsData = await getClients();
+      setClients(clientsData || []);
+
+      // Load Company Details if form is empty (new invoice)
+      if (!defaultValues?.fromName) {
+        const metadata = await getUserMetadata();
+        if (metadata.company_name) {
+          form.setValue("fromName", metadata.company_name);
+          form.setValue("fromEmail", metadata.company_email || "");
+          form.setValue("fromAddress", metadata.company_address || "");
+          form.setValue("fromPhone", metadata.company_phone || "");
+          form.setValue("fromVat", metadata.company_vat || "");
+          form.setValue("fromRegNumber", metadata.company_reg_number || "");
+        }
+      }
+    }
+    loadData();
+  }, []);
 
   const DEFAULT_VALUES: InvoiceFormValues = {
     invoiceNumber: "INV-" + Math.floor(Math.random() * 10000),
@@ -79,16 +117,18 @@ export function InvoiceForm({
         // Convert date strings back to Date objects
         if (parsed.date) parsed.date = new Date(parsed.date);
         if (parsed.dueDate) parsed.dueDate = new Date(parsed.dueDate);
-        
+
         // Merge with defaults to ensure missing fields (like dates) are populated
         const mergedValues = {
           ...DEFAULT_VALUES,
           ...parsed,
           // Ensure dates are valid if the merge overwrote them with strings/undefined despite the check above
           date: parsed.date ? new Date(parsed.date) : DEFAULT_VALUES.date,
-          dueDate: parsed.dueDate ? new Date(parsed.dueDate) : DEFAULT_VALUES.dueDate,
+          dueDate: parsed.dueDate
+            ? new Date(parsed.dueDate)
+            : DEFAULT_VALUES.dueDate,
         };
-        
+
         form.reset(mergedValues);
         // Optional: clear it once restored, or keep it until saved
         // localStorage.removeItem("pendingInvoice")
@@ -107,6 +147,7 @@ export function InvoiceForm({
   const items = useWatch({ control: form.control, name: "items" });
   const taxRate = useWatch({ control: form.control, name: "taxRate" }) || 0;
   const discount = useWatch({ control: form.control, name: "discount" }) || 0;
+  console.log(discount);
 
   // Watch all values for PDF generation
   const values = useWatch({ control: form.control }) as InvoiceFormValues;
@@ -114,7 +155,20 @@ export function InvoiceForm({
   const subtotal =
     items?.reduce((acc, item) => acc + item.quantity * item.price, 0) || 0;
   const taxAmount = (subtotal * taxRate) / 100;
-  const total = subtotal + taxAmount - discount;
+  const total = subtotal + taxAmount - (discount > 0 ? discount : 0);
+
+  const handleClientChange = (clientId: string) => {
+    const client = clients.find((c) => c.id === clientId);
+    if (client) {
+      form.setValue("clientId", clientId);
+      form.setValue("toName", client.name);
+      form.setValue("toEmail", client.email || "");
+      form.setValue("toAddress", client.address || "");
+      form.setValue("toPhone", client.phone || "");
+      form.setValue("toVat", client.vat_number || "");
+      form.setValue("toRegNumber", client.reg_number || "");
+    }
+  };
 
   async function onSubmit(data: InvoiceFormValues) {
     const {
@@ -164,7 +218,7 @@ export function InvoiceForm({
         </div>
 
         <div className="flex flex-col xl:flex-row gap-8 items-start flex-1 overflow-hidden min-h-0">
-          <div className="flex-1 w-full space-y-6 overflow-y-auto max-h-[85vh] overflow-x-hidden pr-2 custom-scrollbar">
+          <div className="flex-1 w-full space-y-6 overflow-y-auto max-h-[79vh] overflow-x-hidden pr-2 custom-scrollbar">
             <Card>
               <CardHeader>
                 <CardTitle>Invoice Details</CardTitle>
@@ -417,10 +471,24 @@ export function InvoiceForm({
 
                   {/* Client Details */}
                   <div className="space-y-6">
-                    <div className="pb-3 border-b">
+                    <div className="pb-3 border-b flex justify-between items-center">
                       <h3 className="font-semibold text-lg text-foreground tracking-tight">
                         Client company details
                       </h3>
+                      <div className="w-[200px]">
+                        <Select onValueChange={handleClientChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select client" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {clients.map((client) => (
+                              <SelectItem key={client.id} value={client.id}>
+                                {client.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     <div className="space-y-5">
                       <FormField
@@ -679,9 +747,43 @@ export function InvoiceForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Discount</FormLabel>
-                      <FormControl>
-                        <Input type="number" {...field} />
-                      </FormControl>
+                      <div className="relative">
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min={0}
+                            {...field}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value === "") {
+                                field.onChange(value);
+                                return;
+                              }
+                              const parsed = parseFloat(value);
+                              if (parsed < 0) {
+                                field.onChange(Math.abs(parsed));
+                              } else {
+                                field.onChange(value);
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "-" || e.key === "e") {
+                                e.preventDefault();
+                              }
+                            }}
+                            className={
+                              discount > 0 && !form.formState.errors.discount
+                                ? "pr-10 border-green-500 focus-visible:ring-green-500"
+                                : ""
+                            }
+                          />
+                        </FormControl>
+                        {discount > 0 && !form.formState.errors.discount && (
+                          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <CheckCircle2 className="h-5 w-5 text-green-500" />
+                          </div>
+                        )}
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -700,7 +802,7 @@ export function InvoiceForm({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Discount</span>
-                    <span>-{discount.toFixed(2)}</span>
+                    <span>-{Number(discount || 0).toFixed(2)}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-bold text-lg">
@@ -712,14 +814,14 @@ export function InvoiceForm({
             </Card>
           </div>
 
-          <div className="hidden xl:block w-[42%] shrink-0">
+          <div className="max-h-[79vh] hidden xl:block w-[42%] shrink-0">
             <div className="rounded-xl border bg-muted/50 shadow-sm h-full flex flex-col overflow-hidden">
               <div className="p-4 border-b bg-muted/50 backdrop-blur-sm z-10 shrink-0">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold">Live Preview</h3>
                 </div>
               </div>
-              <div className="flex-1 max-h-[78vh] overflow-y-auto p-4 custom-scrollbar scroll-smooth transition-all duration-300 ease-in-out overflow-x-hidden">
+              <div className="max-h-[72.5vh] flex-1 h-full overflow-y-auto p-4 custom-scrollbar scroll-smooth transition-all duration-300 ease-in-out overflow-x-hidden">
                 <div className="origin-top-left">
                   <InvoicePreview data={values} />
                 </div>

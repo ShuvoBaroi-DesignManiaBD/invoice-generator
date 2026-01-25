@@ -1,0 +1,5 @@
+import { syncSupabaseSession } from "@/utils/supabase/session";
+
+export async function middleware(request: NextRequest) {
+  return syncSupabaseSession(request);
+}

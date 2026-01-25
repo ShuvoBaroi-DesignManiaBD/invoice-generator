@@ -8,7 +8,7 @@ export default async function InvoicesPage() {
   const invoices = await getInvoices()
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
+    <div className="mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Invoices</h1>
         <Button asChild>

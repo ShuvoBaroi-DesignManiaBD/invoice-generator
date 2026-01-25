@@ -20,6 +20,7 @@ export const invoiceSchema = z.object({
   fromRegNumber: z.string().optional(),
 
   // Client Details
+  clientId: z.string().optional(),
   toName: z.string().min(1, "Client company name is required"),
   toEmail: z.string().email().optional().or(z.literal('')),
   toAddress: z.string().optional(),
@@ -37,6 +38,15 @@ export const invoiceSchema = z.object({
   discount: z.coerce.number().min(0).optional(),
   currency: z.string().default('USD'),
   status: z.enum(['draft', 'pending', 'paid', 'overdue']).default('draft'),
+}).refine((data) => {
+  const subtotal = data.items.reduce((acc, item) => acc + (item.quantity * item.price), 0);
+  const taxRate = data.taxRate || 0;
+  const taxAmount = (subtotal * taxRate) / 100;
+  const total = subtotal + taxAmount;
+  return (data.discount || 0) <= total;
+}, {
+  message: "Discount cannot exceed the total amount",
+  path: ["discount"],
 })
 
 export type InvoiceFormValues = z.infer<typeof invoiceSchema>
@@ -58,4 +68,15 @@ export const accountSchema = z.object({
 })
 
 export type AccountValues = z.infer<typeof accountSchema>
+
+export const clientSchema = z.object({
+  name: z.string().min(1, "Client name is required"),
+  email: z.string().email().optional().or(z.literal('')),
+  address: z.string().optional(),
+  phone: z.string().optional(),
+  vatNumber: z.string().optional(),
+  regNumber: z.string().optional(),
+})
+
+export type ClientFormValues = z.infer<typeof clientSchema>
 

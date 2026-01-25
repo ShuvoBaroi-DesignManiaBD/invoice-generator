@@ -28,7 +28,7 @@ interface SettingsLayoutProps {
 
 export default function SettingsLayout({ children }: SettingsLayoutProps) {
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
+    <div className="container mx-auto py-8 space-y-6">
       <div className="space-y-0.5">
         <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
         <p className="text-muted-foreground">

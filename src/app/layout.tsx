@@ -34,6 +34,7 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         <ThemeProvider
           attribute="class"
@@ -43,7 +44,7 @@ export default async function RootLayout({
         >
           <ThemeSync themePreference={data.user?.user_metadata?.theme_preference} />
           <Header user={data.user} />
-            <main className="min-h-screen">
+            <main className="container mx-auto h-full overflow-hidden">
               {children}
             </main>
           <Toaster />

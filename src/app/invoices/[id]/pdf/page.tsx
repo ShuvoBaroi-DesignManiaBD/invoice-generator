@@ -11,7 +11,7 @@ export default async function InvoicePDFPage({ params }: { params: Promise<{ id:
   }
 
   return (
-    <div className="h-full">
+    <div className="h-full py-6">
       <PDFViewerWrapper data={invoice} />
     </div>
   )

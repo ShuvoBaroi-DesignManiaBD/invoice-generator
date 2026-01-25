@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { LayoutDashboard, FileText, Settings, Menu, X, LogOut, User as UserIcon } from "lucide-react"
+import { LayoutDashboard, FileText, Settings, Menu, X, LogOut, User as UserIcon, Users } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -35,6 +35,12 @@ const routes = [
     icon: FileText,
     href: "/invoices",
     color: "text-violet-500",
+  },
+  {
+    label: "Clients",
+    icon: Users,
+    href: "/clients",
+    color: "text-orange-500",
   },
   {
     label: "Settings",

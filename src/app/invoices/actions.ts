@@ -1,11 +1,18 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { InvoiceFormValues } from '@/lib/schemas'
+import { InvoiceFormValues, invoiceSchema } from '@/lib/schemas'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
 export async function createInvoice(data: InvoiceFormValues) {
+  const result = invoiceSchema.safeParse(data)
+  
+  if (!result.success) {
+    return { error: "Invalid invoice data" }
+  }
+
+  const validData = result.data
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -15,18 +22,26 @@ export async function createInvoice(data: InvoiceFormValues) {
   }
   
   if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('your-supabase-url')) {
-      console.log('Mock creating invoice:', data)
+      console.log('Mock creating invoice:', validData)
       redirect('/dashboard')
   }
 
+  // Calculate total amount
+  const subtotal = validData.items.reduce((acc, item) => acc + (item.quantity * item.price), 0)
+  const taxRate = validData.taxRate || 0
+  const discount = validData.discount || 0
+  const taxAmount = (subtotal * taxRate) / 100
+  const total = subtotal + taxAmount - discount
+
   const { error } = await supabase.from('invoices').insert({
       user_id: user.id,
-      client_name: data.toName,
-      amount: data.items.reduce((acc, item) => acc + (item.quantity * item.price), 0),
-      status: data.status,
-      currency: data.currency,
-      created_at: data.date.toISOString(),
-      data: data // Save the entire form data object to the JSONB column
+      client_id: validData.clientId || null,
+      client_name: validData.toName,
+      amount: total,
+      status: validData.status,
+      currency: validData.currency,
+      created_at: validData.date.toISOString(),
+      data: validData // Save the entire form data object to the JSONB column
   })
 
   if (error) {

@@ -1,5 +1,6 @@
 "use client"
 
+import { useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -24,6 +25,9 @@ const formSchema = z.object({
 })
 
 export function LoginForm() {
+  const searchParams = useSearchParams()
+  const redirectUrl = searchParams.get("redirect") || undefined
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -33,7 +37,7 @@ export function LoginForm() {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const result = await login(values)
+    const result = await login(values, redirectUrl)
     if (result?.error) {
         toast.error(result.error)
     }

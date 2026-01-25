@@ -3,7 +3,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 
-export async function login(data: { email: string; password: string }) {
+export async function login(data: { email: string; password: string }, redirectUrl?: string) {
   const supabase = await createClient()
 
   const { error } = await supabase.auth.signInWithPassword(data)
@@ -12,7 +12,7 @@ export async function login(data: { email: string; password: string }) {
     return { error: error.message }
   }
 
-  redirect('/dashboard')
+  redirect(redirectUrl || '/dashboard')
 }
 
 export async function signup(data: { email: string; password: string }) {

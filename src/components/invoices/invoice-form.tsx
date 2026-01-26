@@ -29,7 +29,7 @@ import {
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { invoiceSchema, InvoiceFormValues } from "@/lib/schemas";
-import { createInvoice } from "@/app/invoices/actions";
+import { createInvoice, updateInvoice } from "@/app/invoices/actions";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { PDFDownloadLink } from "@react-pdf/renderer";
@@ -47,6 +47,7 @@ import {
 } from "@/components/ui/select";
 import { getClients } from "@/app/clients/actions";
 import { getUserMetadata } from "@/app/settings/actions";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export function InvoiceForm({
   defaultValues,
@@ -63,19 +64,6 @@ export function InvoiceForm({
       // Load Clients
       const clientsData = await getClients();
       setClients(clientsData || []);
-
-      // Load Company Details if form is empty (new invoice)
-      if (!defaultValues?.fromName) {
-        const metadata = await getUserMetadata();
-        if (metadata.company_name) {
-          form.setValue("fromName", metadata.company_name);
-          form.setValue("fromEmail", metadata.company_email || "");
-          form.setValue("fromAddress", metadata.company_address || "");
-          form.setValue("fromPhone", metadata.company_phone || "");
-          form.setValue("fromVat", metadata.company_vat || "");
-          form.setValue("fromRegNumber", metadata.company_reg_number || "");
-        }
-      }
     }
     loadData();
   }, []);
@@ -170,6 +158,30 @@ export function InvoiceForm({
     }
   };
 
+  const handleFillCompanyDetails = async (checked: boolean) => {
+    if (checked) {
+      try {
+        const metadata = await getUserMetadata();
+        if (metadata.company_name) {
+          form.setValue("fromName", metadata.company_name);
+          form.setValue("fromEmail", metadata.company_email || "");
+          form.setValue("fromAddress", metadata.company_address || "");
+          form.setValue("fromPhone", metadata.company_phone || "");
+          form.setValue("fromVat", metadata.company_vat || "");
+          form.setValue("fromRegNumber", metadata.company_reg_number || "");
+          toast.success("Company details filled from settings");
+        } else {
+          toast.warning(
+            "No company details found in settings. Please configure them in Settings > My Company.",
+          );
+        }
+      } catch (error) {
+        console.error("Failed to fetch company details:", error);
+        toast.error("Failed to load company details");
+      }
+    }
+  };
+
   async function onSubmit(data: InvoiceFormValues) {
     const {
       data: { user },
@@ -182,11 +194,21 @@ export function InvoiceForm({
       return;
     }
 
-    const result = await createInvoice(data);
+    let result;
+    if (data.id) {
+      result = await updateInvoice(data);
+    } else {
+      result = await createInvoice(data);
+    }
+
     if (result?.error) {
       toast.error(result.error);
     } else {
-      toast.success("Invoice created successfully");
+      toast.success(
+        data.id
+          ? "Invoice updated successfully"
+          : "Invoice created successfully",
+      );
       localStorage.removeItem("pendingInvoice");
     }
   }
@@ -198,7 +220,9 @@ export function InvoiceForm({
         className="flex flex-col h-full gap-6 max-h-[90vh]"
       >
         <div className="flex justify-between items-center shrink-0">
-          <h2 className="text-3xl font-bold tracking-tight">New Invoice</h2>
+          <h2 className="text-3xl font-bold tracking-tight">
+            {defaultValues?.id ? "Edit Invoice" : "New Invoice"}
+          </h2>
           <div className="flex gap-2">
             {isClient && (
               <PDFDownloadLink
@@ -341,10 +365,22 @@ export function InvoiceForm({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
                   {/* Sender Details */}
                   <div className="space-y-6">
-                    <div className="pb-3 border-b">
+                    <div className="pb-3 border-b flex justify-between items-center">
                       <h3 className="font-semibold text-lg text-foreground tracking-tight">
                         Your company details
                       </h3>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="fill-company-details"
+                          onCheckedChange={handleFillCompanyDetails}
+                        />
+                        <label
+                          htmlFor="fill-company-details"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer select-none"
+                        >
+                          Add your current company details
+                        </label>
+                      </div>
                     </div>
                     <div className="space-y-5">
                       <FormField
@@ -476,7 +512,10 @@ export function InvoiceForm({
                         Client company details
                       </h3>
                       <div className="w-[200px]">
-                        <Select onValueChange={handleClientChange}>
+                        <Select
+                          onValueChange={handleClientChange}
+                          value={values.clientId}
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Select client" />
                           </SelectTrigger>

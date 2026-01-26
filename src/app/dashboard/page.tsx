@@ -1,9 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { getInvoices } from "@/lib/data"
+import { getInvoices, getRevenueOverTime } from "@/lib/data"
 import { CreditCard, Users, DollarSign, Activity } from "lucide-react"
+import { RevenueChart } from "@/components/dashboard/revenue-chart"
 
 export default async function DashboardPage() {
   const invoices = await getInvoices()
+  const revenueData = await getRevenueOverTime()
 
   const totalInvoices = invoices.length
   const totalAmount = invoices.reduce((acc, inv) => acc + (inv.amount || 0), 0)
@@ -77,10 +79,7 @@ export default async function DashboardPage() {
             <CardTitle>Overview</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
-            {/* Placeholder for a chart */}
-            <div className="h-[200px] flex items-center justify-center text-muted-foreground">
-              Chart Placeholder (Revenue over time)
-            </div>
+            <RevenueChart data={revenueData} />
           </CardContent>
         </Card>
         <Card className="col-span-3">
@@ -110,3 +109,4 @@ export default async function DashboardPage() {
     </div>
   )
 }
+

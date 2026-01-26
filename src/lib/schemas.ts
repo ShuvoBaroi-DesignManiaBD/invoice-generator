@@ -1,6 +1,7 @@
 import { z } from "zod"
 
 export const invoiceSchema = z.object({
+  id: z.string().optional(),
   invoiceNumber: z.string().min(1, "Invoice number is required"),
   date: z.coerce.date({
     required_error: "Invoice date is required",

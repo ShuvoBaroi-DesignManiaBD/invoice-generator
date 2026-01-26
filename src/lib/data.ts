@@ -45,6 +45,59 @@ export async function getInvoices(): Promise<Invoice[]> {
   })) as Invoice[]
 }
 
+export async function getRevenueOverTime() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return []
+
+  // Check if configured
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('your-supabase-url')) {
+      return [
+          { name: 'Jan', total: Math.floor(Math.random() * 5000) + 1000 },
+          { name: 'Feb', total: Math.floor(Math.random() * 5000) + 1000 },
+          { name: 'Mar', total: Math.floor(Math.random() * 5000) + 1000 },
+          { name: 'Apr', total: Math.floor(Math.random() * 5000) + 1000 },
+          { name: 'May', total: Math.floor(Math.random() * 5000) + 1000 },
+          { name: 'Jun', total: Math.floor(Math.random() * 5000) + 1000 },
+      ]
+  }
+
+  const { data, error } = await supabase
+      .from('invoices')
+      .select('amount, created_at')
+      .eq('user_id', user.id)
+      .eq('status', 'paid')
+      .gte('created_at', new Date(new Date().setMonth(new Date().getMonth() - 6)).toISOString())
+      .order('created_at', { ascending: true })
+
+  if (error) {
+      console.error('Error fetching revenue data:', error)
+      return []
+  }
+
+  // Group by month
+  const monthlyRevenue: Record<string, number> = {}
+  
+  // Initialize last 6 months with 0
+  for (let i = 5; i >= 0; i--) {
+      const d = new Date()
+      d.setMonth(d.getMonth() - i)
+      const month = d.toLocaleString('default', { month: 'short' })
+      monthlyRevenue[month] = 0
+  }
+
+  data.forEach((invoice: any) => {
+      const date = new Date(invoice.created_at)
+      const month = date.toLocaleString('default', { month: 'short' })
+      if (monthlyRevenue[month] !== undefined) {
+          monthlyRevenue[month] += Number(invoice.amount)
+      }
+  })
+
+  return Object.entries(monthlyRevenue).map(([name, total]) => ({ name, total }))
+}
+
 export async function getInvoice(id: string): Promise<InvoiceFormValues | null> {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -80,6 +133,7 @@ export async function getInvoice(id: string): Promise<InvoiceFormValues | null> 
     if (data.data) {
         return {
             ...data.data,
+            id: data.id,
             // Ensure essential fields are not overwritten if somehow missing in data but present in columns
             // though createInvoice saves everything to data.
             date: new Date(data.data.date), // Rehydrate dates

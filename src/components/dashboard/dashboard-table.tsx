@@ -170,12 +170,12 @@ export function DashboardTable({
               </TableCell>
               <TableCell className="text-right space-x-2">
                 <Button variant="ghost" size="icon" asChild>
-                  <Link href={`/invoices/${invoice.id}/edit`}>
+                  <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
                     <Edit className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button variant="ghost" size="icon" asChild>
-                  <Link href={`/invoices/${invoice.id}/pdf`}>
+                  <Link href={`/dashboard/invoices/${invoice.id}/pdf`}>
                     <FileText className="h-4 w-4" />
                   </Link>
                 </Button>

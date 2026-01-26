@@ -3,14 +3,8 @@ import { z } from "zod"
 export const invoiceSchema = z.object({
   id: z.string().optional(),
   invoiceNumber: z.string().min(1, "Invoice number is required"),
-  date: z.coerce.date({
-    required_error: "Invoice date is required",
-    invalid_type_error: "Invalid date format",
-  }),
-  dueDate: z.coerce.date({
-    required_error: "Due date is required",
-    invalid_type_error: "Invalid date format",
-  }),
+  date: z.coerce.date(),
+  dueDate: z.coerce.date(),
   
   // Sender Details
   fromName: z.string().min(1, "Company name is required"),

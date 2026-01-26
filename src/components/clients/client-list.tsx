@@ -41,7 +41,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ClientForm } from "./client-form";
-import { deleteClientAction } from "@/app/clients/actions";
+import { deleteClientAction } from "@/app/dashboard/clients/actions";
 import { toast } from "sonner";
 
 // Simple debounce hook

@@ -33,9 +33,11 @@ export async function createInvoice(data: InvoiceFormValues) {
   const taxAmount = (subtotal * taxRate) / 100
   const total = subtotal + taxAmount - discount
 
+  const finalClientId = await ensureClient(supabase, user.id, validData);
+
   const { error } = await supabase.from('invoices').insert({
       user_id: user.id,
-      client_id: validData.clientId || null,
+      client_id: finalClientId || null,
       client_name: validData.toName,
       amount: total,
       status: validData.status,
@@ -81,8 +83,10 @@ export async function updateInvoice(data: InvoiceFormValues) {
   const taxAmount = (subtotal * taxRate) / 100
   const total = subtotal + taxAmount - discount
 
+  const finalClientId = await ensureClient(supabase, user.id, validData);
+
   const { error } = await supabase.from('invoices').update({
-      client_id: validData.clientId || null,
+      client_id: finalClientId || null,
       client_name: validData.toName,
       amount: total,
       status: validData.status,
@@ -123,4 +127,66 @@ export async function deleteInvoice(id: string) {
     revalidatePath('/dashboard')
     revalidatePath('/invoices')
     return { success: true }
+}
+
+export async function updateInvoiceStatus(id: string, status: 'draft' | 'pending' | 'paid' | 'overdue') {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+        return { error: "Unauthorized" }
+    }
+
+    const { error } = await supabase
+        .from('invoices')
+        .update({ status })
+        .eq('id', id)
+        .eq('user_id', user.id)
+
+    if (error) {
+        return { error: error.message }
+    }
+
+    revalidatePath('/dashboard')
+    revalidatePath('/invoices')
+    return { success: true }
+}
+
+async function ensureClient(supabase: any, userId: string, data: InvoiceFormValues) {
+    let finalClientId = data.clientId;
+
+    if (data.toName) {
+        // Check if client exists by name
+        const { data: existingClient } = await supabase
+            .from('clients')
+            .select('id')
+            .eq('user_id', userId)
+            .ilike('name', data.toName)
+            .single();
+        
+        if (existingClient) {
+            finalClientId = existingClient.id;
+        } else {
+            // Create new client
+            const { data: newClient, error: createClientError } = await supabase
+                .from('clients')
+                .insert({
+                    user_id: userId,
+                    name: data.toName,
+                    email: data.toEmail,
+                    address: data.toAddress,
+                    phone: data.toPhone,
+                    vat_number: data.toVat,
+                    reg_number: data.toRegNumber,
+                })
+                .select('id')
+                .single();
+            
+            if (!createClientError && newClient) {
+                finalClientId = newClient.id;
+                revalidatePath('/clients');
+            }
+        }
+    }
+    return finalClientId;
 }

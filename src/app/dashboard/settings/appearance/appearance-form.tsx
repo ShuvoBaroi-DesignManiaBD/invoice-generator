@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { Button } from "@/components/ui/button"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -11,45 +11,51 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useTheme } from "next-themes"
-import { updateThemePreference } from "@/app/settings/actions"
-import { toast } from "sonner"
-import { useEffect } from "react"
+} from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useTheme } from "next-themes";
+import { updateThemePreference } from "@/app/dashboard/settings/actions";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 const appearanceFormSchema = z.object({
   theme: z.enum(["light", "dark", "system"]),
-})
+});
 
-type AppearanceFormValues = z.infer<typeof appearanceFormSchema>
+type AppearanceFormValues = z.infer<typeof appearanceFormSchema>;
 
 export function AppearanceForm() {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme } = useTheme();
 
   const form = useForm<AppearanceFormValues>({
     resolver: zodResolver(appearanceFormSchema),
     defaultValues: {
       theme: (theme as "light" | "dark" | "system") || "system",
     },
-  })
+  });
 
   // Update form value when theme changes externally (e.g. initial load)
   useEffect(() => {
-     if (theme) {
-         form.setValue("theme", theme as "light" | "dark" | "system")
-     }
-  }, [theme, form])
+    if (theme) {
+      form.setValue("theme", theme as "light" | "dark" | "system");
+    }
+  }, [theme, form]);
 
   async function onSubmit(data: AppearanceFormValues) {
-    setTheme(data.theme)
-    const result = await updateThemePreference(data.theme)
+    setTheme(data.theme);
+    const result = await updateThemePreference(data.theme);
 
     if (result.error) {
-      toast.error(result.error)
+      toast.error(result.error);
     } else {
-      toast.success("Theme preference saved")
+      toast.success("Theme preference saved");
     }
   }
 
@@ -58,7 +64,8 @@ export function AppearanceForm() {
       <CardHeader>
         <CardTitle>Appearance</CardTitle>
         <CardDescription>
-          Customize the look and feel of the application. Automatically switches between day and night themes.
+          Customize the look and feel of the application. Automatically switches
+          between day and night themes.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -141,5 +148,5 @@ export function AppearanceForm() {
         </Form>
       </CardContent>
     </Card>
-  )
+  );
 }

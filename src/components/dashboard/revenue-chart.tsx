@@ -13,7 +13,7 @@ interface RevenueChartProps {
 const chartConfig = {
   total: {
     label: "Revenue",
-    color: "hsl(var(--primary))",
+    color: "var(--primary)",
   },
 } satisfies ChartConfig
 

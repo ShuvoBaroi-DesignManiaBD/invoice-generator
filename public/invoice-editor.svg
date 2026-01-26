@@ -1,0 +1,25 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" rx="12" fill="#161618" stroke="#333" stroke-width="2"/>
+  
+  <!-- Sidebar -->
+  <rect x="20" y="20" width="180" height="560" rx="8" fill="#1F1F22"/>
+  <rect x="40" y="40" width="140" height="20" rx="4" fill="#333"/>
+  <rect x="40" y="80" width="100" height="12" rx="3" fill="#333"/>
+  <rect x="40" y="110" width="120" height="12" rx="3" fill="#333"/>
+  <rect x="40" y="140" width="90" height="12" rx="3" fill="#333"/>
+  
+  <!-- Main Content -->
+  <rect x="220" y="20" width="560" height="560" rx="8" fill="#1F1F22"/>
+  
+  <!-- Invoice Header -->
+  <rect x="260" y="60" width="200" height="30" rx="4" fill="#4F46E5" fill-opacity="0.2"/>
+  <rect x="660" y="60" width="80" height="80" rx="4" fill="#333"/>
+  
+  <!-- Invoice Lines -->
+  <rect x="260" y="180" width="480" height="40" rx="4" fill="#2A2A2D"/>
+  <rect x="260" y="240" width="480" height="40" rx="4" fill="#2A2A2D"/>
+  <rect x="260" y="300" width="480" height="40" rx="4" fill="#2A2A2D"/>
+  
+  <!-- Total -->
+  <rect x="540" y="400" width="200" height="60" rx="4" fill="#4F46E5" fill-opacity="0.1"/>
+</svg>

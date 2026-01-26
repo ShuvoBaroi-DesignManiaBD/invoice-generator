@@ -4,6 +4,7 @@ import { InvoiceFormValues } from './schemas'
 export type Invoice = {
   id: string
   created_at: string
+  client_id?: string | null
   client_name: string
   amount: number
   status: 'paid' | 'pending' | 'overdue' | 'draft'

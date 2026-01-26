@@ -33,19 +33,19 @@ const routes = [
   {
     label: "Invoices",
     icon: FileText,
-    href: "/invoices",
+    href: "/dashboard/invoices",
     color: "text-violet-500",
   },
   {
     label: "Clients",
     icon: Users,
-    href: "/clients",
+    href: "/dashboard/clients",
     color: "text-orange-500",
   },
   {
     label: "Settings",
     icon: Settings,
-    href: "/settings",
+    href: "/dashboard/settings",
     color: "text-pink-700",
   },
 ]
@@ -89,13 +89,18 @@ export function Header({ user }: { user: User | null }) {
           </div>
 
           {/* Logo */}
-          <Link href="/dashboard" className="flex items-center space-x-2">
-            <div className="h-6 w-6 bg-primary rounded flex items-center justify-center text-primary-foreground text-xs font-bold">
-                IG
+          <Link href="/" className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold italic text-white shadow-[0_0_15px_rgba(79,70,229,0.4)]">
+              IG
             </div>
-            <span className="hidden font-bold sm:inline-block">
-              Invoice Generator
-            </span>
+            <div className="text-xl font-bold tracking-tight bg-gradient-to-r from-white to-white/60 bg-clip-text text-accent-foreground">
+              Invoice
+              <span className="text-indigo-400 font-extrabold italic">
+                Generator
+              </span>
+            </div>
+          </div>
           </Link>
         </div>
 

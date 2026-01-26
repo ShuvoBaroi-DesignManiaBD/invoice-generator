@@ -1,0 +1,37 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" rx="12" fill="#161618" stroke="#333" stroke-width="2"/>
+  
+  <!-- Header -->
+  <rect x="40" y="40" width="720" height="60" rx="8" fill="#1F1F22"/>
+  <rect x="60" y="55" width="120" height="30" rx="4" fill="#333"/>
+  <rect x="600" y="55" width="140" height="30" rx="4" fill="#4F46E5"/>
+  
+  <!-- List Items -->
+  <g transform="translate(0, 20)">
+    <rect x="40" y="120" width="720" height="80" rx="8" fill="#1F1F22" stroke="#333"/>
+    <rect x="60" y="145" width="40" height="30" rx="4" fill="#333"/>
+    <rect x="120" y="145" width="200" height="30" rx="4" fill="#333"/>
+    <rect x="650" y="145" width="90" height="30" rx="15" fill="#22C55E" fill-opacity="0.2"/>
+  </g>
+  
+  <g transform="translate(0, 120)">
+    <rect x="40" y="120" width="720" height="80" rx="8" fill="#1F1F22" stroke="#333"/>
+    <rect x="60" y="145" width="40" height="30" rx="4" fill="#333"/>
+    <rect x="120" y="145" width="200" height="30" rx="4" fill="#333"/>
+    <rect x="650" y="145" width="90" height="30" rx="15" fill="#EAB308" fill-opacity="0.2"/>
+  </g>
+  
+  <g transform="translate(0, 220)">
+    <rect x="40" y="120" width="720" height="80" rx="8" fill="#1F1F22" stroke="#333"/>
+    <rect x="60" y="145" width="40" height="30" rx="4" fill="#333"/>
+    <rect x="120" y="145" width="200" height="30" rx="4" fill="#333"/>
+    <rect x="650" y="145" width="90" height="30" rx="15" fill="#EF4444" fill-opacity="0.2"/>
+  </g>
+  
+  <g transform="translate(0, 320)">
+    <rect x="40" y="120" width="720" height="80" rx="8" fill="#1F1F22" stroke="#333"/>
+    <rect x="60" y="145" width="40" height="30" rx="4" fill="#333"/>
+    <rect x="120" y="145" width="200" height="30" rx="4" fill="#333"/>
+    <rect x="650" y="145" width="90" height="30" rx="15" fill="#22C55E" fill-opacity="0.2"/>
+  </g>
+</svg>

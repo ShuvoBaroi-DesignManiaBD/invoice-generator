@@ -29,7 +29,7 @@ import {
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { invoiceSchema, InvoiceFormValues } from "@/lib/schemas";
-import { createInvoice, updateInvoice } from "@/app/invoices/actions";
+import { createInvoice, updateInvoice } from "@/app/dashboard/invoices/actions";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { PDFDownloadLink } from "@react-pdf/renderer";
@@ -45,8 +45,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getClients } from "@/app/clients/actions";
-import { getUserMetadata } from "@/app/settings/actions";
+import { getClients } from "@/app/dashboard/clients/actions";
+import { getUserMetadata } from "@/app/dashboard/settings/actions";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export function InvoiceForm({

@@ -1,4 +1,4 @@
-import { InvoiceForm } from "@/components/invoices/invoice-form"
+import { InvoiceForm } from "@/components/invoices/invoice-form";
 
 export default function NewInvoicePage() {
   return (
@@ -7,5 +7,5 @@ export default function NewInvoicePage() {
         <InvoiceForm />
       </div>
     </div>
-  )
+  );
 }

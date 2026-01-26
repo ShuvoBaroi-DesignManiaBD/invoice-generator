@@ -1,0 +1,34 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" rx="12" fill="#161618" stroke="#333" stroke-width="2"/>
+  
+  <!-- Left Panel -->
+  <rect x="40" y="40" width="340" height="520" rx="8" fill="#1F1F22"/>
+  <rect x="60" y="60" width="120" height="20" rx="4" fill="#333"/>
+  
+  <!-- Toggles -->
+  <g transform="translate(0, 20)">
+    <rect x="60" y="100" width="300" height="60" rx="8" fill="#2A2A2D"/>
+    <rect x="80" y="120" width="100" height="20" rx="4" fill="#333"/>
+    <rect x="300" y="120" width="40" height="24" rx="12" fill="#4F46E5"/>
+    <circle cx="330" cy="132" r="8" fill="white"/>
+  </g>
+  
+  <g transform="translate(0, 100)">
+    <rect x="60" y="100" width="300" height="60" rx="8" fill="#2A2A2D"/>
+    <rect x="80" y="120" width="100" height="20" rx="4" fill="#333"/>
+    <rect x="300" y="120" width="40" height="24" rx="12" fill="#333"/>
+    <circle cx="310" cy="132" r="8" fill="#666"/>
+  </g>
+  
+  <!-- Right Panel -->
+  <rect x="420" y="40" width="340" height="520" rx="8" fill="#1F1F22"/>
+  <rect x="440" y="60" width="120" height="20" rx="4" fill="#333"/>
+  
+  <!-- Color Swatches -->
+  <circle cx="480" cy="140" r="30" fill="#4F46E5" stroke="white" stroke-width="4"/>
+  <circle cx="560" cy="140" r="30" fill="#A855F7"/>
+  <circle cx="640" cy="140" r="30" fill="#22C55E"/>
+  <circle cx="480" cy="220" r="30" fill="#EF4444"/>
+  <circle cx="560" cy="220" r="30" fill="#EAB308"/>
+  <circle cx="640" cy="220" r="30" fill="#3B82F6"/>
+</svg>

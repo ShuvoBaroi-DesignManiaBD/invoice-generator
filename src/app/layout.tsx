@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { Header } from "@/components/layout/header";
 import { createClient } from "@/utils/supabase/server";
 import { ThemeSync } from "@/components/theme-sync";
+import { Footer } from "@/components/layout/footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,11 +43,12 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ThemeSync themePreference={data.user?.user_metadata?.theme_preference} />
+          <ThemeSync
+            themePreference={data.user?.user_metadata?.theme_preference}
+          />
           <Header user={data.user} />
-            <main className="container mx-auto h-full overflow-hidden">
-              {children}
-            </main>
+          <main className="mx-auto h-full overflow-hidden">{children}</main>
+          <Footer />
           <Toaster />
         </ThemeProvider>
       </body>

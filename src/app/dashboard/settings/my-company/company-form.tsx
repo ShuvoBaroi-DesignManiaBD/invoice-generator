@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { Button } from "@/components/ui/button"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -10,18 +10,28 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { companyDetailsSchema, CompanyDetailsValues } from "@/lib/schemas"
-import { updateCompanyDetails } from "@/app/settings/actions"
-import { toast } from "sonner"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { companyDetailsSchema, CompanyDetailsValues } from "@/lib/schemas";
+import { updateCompanyDetails } from "@/app/dashboard/settings/actions";
+import { toast } from "sonner";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-export function CompanyForm({ initialData }: { initialData: Partial<CompanyDetailsValues> }) {
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+export function CompanyForm({
+  initialData,
+}: {
+  initialData: Partial<CompanyDetailsValues>;
+}) {
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<CompanyDetailsValues>({
     resolver: zodResolver(companyDetailsSchema),
@@ -33,18 +43,18 @@ export function CompanyForm({ initialData }: { initialData: Partial<CompanyDetai
       companyVat: initialData.companyVat || "",
       companyRegNumber: initialData.companyRegNumber || "",
     },
-  })
+  });
 
   async function onSubmit(data: CompanyDetailsValues) {
-    setIsLoading(true)
-    const result = await updateCompanyDetails(data)
-    setIsLoading(false)
+    setIsLoading(true);
+    const result = await updateCompanyDetails(data);
+    setIsLoading(false);
 
     if (result.error) {
-      toast.error(result.error)
+      toast.error(result.error);
     } else {
-      toast.success("Company details saved")
-      router.refresh()
+      toast.success("Company details saved");
+      router.refresh();
     }
   }
 
@@ -53,7 +63,7 @@ export function CompanyForm({ initialData }: { initialData: Partial<CompanyDetai
       <CardHeader>
         <CardTitle>Your company details</CardTitle>
         <CardDescription>
-            Manage your company information used in invoices.
+          Manage your company information used in invoices.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -64,7 +74,9 @@ export function CompanyForm({ initialData }: { initialData: Partial<CompanyDetai
               name="companyName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Company Name <span className="text-destructive">*</span></FormLabel>
+                  <FormLabel>
+                    Company Name <span className="text-destructive">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Your Company Name" {...field} />
                   </FormControl>
@@ -86,60 +98,60 @@ export function CompanyForm({ initialData }: { initialData: Partial<CompanyDetai
               )}
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
+              <FormField
                 control={form.control}
                 name="companyEmail"
                 render={({ field }) => (
-                    <FormItem>
+                  <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                        <Input placeholder="email@company.com" {...field} />
+                      <Input placeholder="email@company.com" {...field} />
                     </FormControl>
                     <FormMessage />
-                    </FormItem>
+                  </FormItem>
                 )}
-                />
-                <FormField
+              />
+              <FormField
                 control={form.control}
                 name="companyPhone"
                 render={({ field }) => (
-                    <FormItem>
+                  <FormItem>
                     <FormLabel>Phone</FormLabel>
                     <FormControl>
-                        <Input placeholder="+1 234 567 890" {...field} />
+                      <Input placeholder="+1 234 567 890" {...field} />
                     </FormControl>
                     <FormMessage />
-                    </FormItem>
+                  </FormItem>
                 )}
-                />
+              />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
+              <FormField
                 control={form.control}
                 name="companyVat"
                 render={({ field }) => (
-                    <FormItem>
+                  <FormItem>
                     <FormLabel>Tax/VAT ID</FormLabel>
                     <FormControl>
-                        <Input placeholder="VAT123456" {...field} />
+                      <Input placeholder="VAT123456" {...field} />
                     </FormControl>
                     <FormMessage />
-                    </FormItem>
+                  </FormItem>
                 )}
-                />
-                <FormField
+              />
+              <FormField
                 control={form.control}
                 name="companyRegNumber"
                 render={({ field }) => (
-                    <FormItem>
+                  <FormItem>
                     <FormLabel>Registration No.</FormLabel>
                     <FormControl>
-                        <Input placeholder="REG987654" {...field} />
+                      <Input placeholder="REG987654" {...field} />
                     </FormControl>
                     <FormMessage />
-                    </FormItem>
+                  </FormItem>
                 )}
-                />
+              />
             </div>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Saving..." : "Save details"}
@@ -148,5 +160,5 @@ export function CompanyForm({ initialData }: { initialData: Partial<CompanyDetai
         </Form>
       </CardContent>
     </Card>
-  )
+  );
 }

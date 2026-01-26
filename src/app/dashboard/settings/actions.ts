@@ -22,7 +22,7 @@ export async function updateCompanyDetails(data: CompanyDetailsValues) {
     return { error: error.message }
   }
 
-  revalidatePath('/settings/my-company')
+  revalidatePath('/dashboard/settings/my-company')
   return { success: true }
 }
 
@@ -43,7 +43,7 @@ export async function updateAccountSettings(data: AccountValues) {
         return { error: error.message }
     }
 
-    revalidatePath('/settings/account')
+    revalidatePath('/dashboard/settings/account')
     return { success: true }
 }
 
@@ -58,7 +58,7 @@ export async function updateThemePreference(theme: string) {
         return { error: error.message }
     }
 
-    revalidatePath('/settings/appearance')
+    revalidatePath('/dashboard/settings/appearance')
     return { success: true }
 }
 

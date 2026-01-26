@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { Button } from "@/components/ui/button"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -10,18 +10,28 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { accountSchema, AccountValues } from "@/lib/schemas"
-import { updateAccountSettings } from "@/app/settings/actions"
-import { toast } from "sonner"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { accountSchema, AccountValues } from "@/lib/schemas";
+import { updateAccountSettings } from "@/app/dashboard/settings/actions";
+import { toast } from "sonner";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-export function AccountForm({ initialData }: { initialData: Partial<AccountValues> }) {
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+export function AccountForm({
+  initialData,
+}: {
+  initialData: Partial<AccountValues>;
+}) {
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<AccountValues>({
     resolver: zodResolver(accountSchema),
@@ -29,19 +39,19 @@ export function AccountForm({ initialData }: { initialData: Partial<AccountValue
       fullName: initialData.fullName || "",
       password: "",
     },
-  })
+  });
 
   async function onSubmit(data: AccountValues) {
-    setIsLoading(true)
-    const result = await updateAccountSettings(data)
-    setIsLoading(false)
+    setIsLoading(true);
+    const result = await updateAccountSettings(data);
+    setIsLoading(false);
 
     if (result.error) {
-      toast.error(result.error)
+      toast.error(result.error);
     } else {
-      toast.success("Account settings updated")
-      form.reset({ ...data, password: "" })
-      router.refresh()
+      toast.success("Account settings updated");
+      form.reset({ ...data, password: "" });
+      router.refresh();
     }
   }
 
@@ -49,9 +59,7 @@ export function AccountForm({ initialData }: { initialData: Partial<AccountValue
     <Card>
       <CardHeader>
         <CardTitle>Account</CardTitle>
-        <CardDescription>
-          Manage your account information.
-        </CardDescription>
+        <CardDescription>Manage your account information.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -76,7 +84,11 @@ export function AccountForm({ initialData }: { initialData: Partial<AccountValue
                 <FormItem>
                   <FormLabel>New Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="Leave blank to keep current" {...field} />
+                    <Input
+                      type="password"
+                      placeholder="Leave blank to keep current"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -89,5 +101,5 @@ export function AccountForm({ initialData }: { initialData: Partial<AccountValue
         </Form>
       </CardContent>
     </Card>
-  )
+  );
 }

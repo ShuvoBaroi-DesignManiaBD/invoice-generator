@@ -1,0 +1,68 @@
+name: Node.js CI
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+jobs:
+  build:
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        node-version: [20.x] # Use a valid Node.js version
+    env:
+        BASE_URL: ${{ secrets.BASE_URL }}
+        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        NEXT_PUBLIC_GA_ID: ${{ secrets.NEXT_PUBLIC_GA_ID }}
+        NEXT_PUBLIC_GTM_ID: ${{ secrets.NEXT_PUBLIC_GTM_ID }}
+       
+    steps:
+    - name: Debug User and Permissions
+      run: |
+        echo "Running as user: $(whoami)"
+        ls -ld /home/webtoolland-invoice/actions-runner/_work/invoice-generator/invoice-generator
+        ls -l /home/webtoolland-invoice/actions-runner/_work/invoice-generator/invoice-generator
+        
+    - uses: actions/checkout@v2
+    
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+        
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+        # cache: 'pnpm'
+        
+    - name: Install Dependencies
+      run: pnpm i
+      
+    - name: Debug Secrets
+      run: |
+        echo "BASE_URL: ${{ secrets.BASE_URL }}"
+        echo "NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}"
+        echo "NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}"
+        echo "NEXT_PUBLIC_GA_ID: ${{ secrets.NEXT_PUBLIC_GA_ID }}"
+        echo "NEXT_PUBLIC_GTM_ID: ${{ secrets.NEXT_PUBLIC_GTM_ID }}"
+      shell: bash
+      
+    - name: Add Environment Variables
+      run: |
+        echo "BASE_URL=${{ secrets.BASE_URL }}" >> .env
+        echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" >> .env
+        echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" >> .env
+        echo "NEXT_PUBLIC_GA_ID=${{ secrets.NEXT_PUBLIC_GA_ID }}" >> .env
+        echo "NEXT_PUBLIC_GTM_ID=${{ secrets.NEXT_PUBLIC_GTM_ID }}" >> .env
+    
+    - name: Build
+      run: pnpm build
+      
+    - name: List PM2 Processes
+      run: pm2 list
+      
+    - name: Restart Application
+      run: pm2 restart 0
+      working-directory: /home/webtoolland-invoice/actions-runner/_work/invoice-generator/invoice-generator

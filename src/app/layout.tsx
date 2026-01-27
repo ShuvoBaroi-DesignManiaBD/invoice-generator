@@ -1,3 +1,4 @@
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -19,8 +20,42 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Invoice Generator",
-  description: "Modern professional invoice generator",
+  title: {
+    default: "Invoice Generator | Professional Invoicing Made Simple",
+    template: "%s | Invoice Generator",
+  },
+  description:
+    "Create professional invoices in seconds. Free invoice generator for freelancers and small businesses. PDF export, client management, and more.",
+  keywords: [
+    "invoice generator",
+    "free invoice maker",
+    "invoice template",
+    "freelance invoice",
+    "billing software",
+  ],
+  authors: [{ name: "Invoice Generator Team" }],
+  creator: "Invoice Generator",
+  metadataBase: new URL(process.env.BASE_URL || "https://invoice-generator.vercel.app"),
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: process.env.BASE_URL || "https://invoice-generator.vercel.app",
+    title: "Invoice Generator | Professional Invoicing Made Simple",
+    description:
+      "Create professional invoices in seconds. Free invoice generator for freelancers and small businesses.",
+    siteName: "Invoice Generator",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Invoice Generator | Professional Invoicing Made Simple",
+    description:
+      "Create professional invoices in seconds. Free invoice generator for freelancers and small businesses.",
+    creator: "@invoicegenerator",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default async function RootLayout({
@@ -52,6 +87,8 @@ export default async function RootLayout({
           <Toaster />
         </ThemeProvider>
       </body>
+      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ""} />
+      <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID || ""} />
     </html>
   );
 }

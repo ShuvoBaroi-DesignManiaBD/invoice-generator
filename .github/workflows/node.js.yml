@@ -9,7 +9,7 @@ jobs:
     runs-on: self-hosted
     strategy:
       matrix:
-        node-version: [20.x] # Use a valid Node.js version
+        node-version: [22.x] # Use a valid Node.js version
     env:
         BASE_URL: ${{ secrets.BASE_URL }}
         NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}

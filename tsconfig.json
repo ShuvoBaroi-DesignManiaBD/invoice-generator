@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "src/proxy"  ],
+, "src/proxy", "src/app/icon.tsxx"  ],
   "exclude": ["node_modules"]
 }

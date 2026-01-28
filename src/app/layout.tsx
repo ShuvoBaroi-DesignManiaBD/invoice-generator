@@ -35,7 +35,9 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Invoice Generator Team" }],
   creator: "Invoice Generator",
-  metadataBase: new URL(process.env.BASE_URL || "https://invoice-generator.vercel.app"),
+  metadataBase: new URL(
+    process.env.BASE_URL || "https://invoice-generator.vercel.app",
+  ),
   openGraph: {
     type: "website",
     locale: "en_US",

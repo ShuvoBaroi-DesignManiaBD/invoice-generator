@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     follow: true,
   },
 };
-fexport default async function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
